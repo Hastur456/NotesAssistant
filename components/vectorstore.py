@@ -6,6 +6,12 @@ from langchain_community.vectorstores import Chroma
 import chromadb
 from chromadb.config import Settings
 
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+logging.basicConfig(filename='debug.log', level=logging.DEBUG, filemode='w',
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
 
 class ChromaVectorStore():
     def __init__(self, persist_dir="./chroma_db"):
@@ -30,6 +36,8 @@ class ChromaVectorStore():
             embeddings=embeddings.tolist(),
             metadatas=metadatas
         )
+
+        logging.info("Добавлены данные ids: {}".format(ids))
     
     def delete_by_source(self, filepath):
         results = self.collection.get(
@@ -39,6 +47,9 @@ class ChromaVectorStore():
         if results["ids"]:
             self.collection.delete(ids=results["ids"])
 
+        logging.info("Удалены данные ids: {}".format(results["ids"]))
+        
+
     def search(self, query, k=5):
         results = self.collection.query(
             query_embeddings=[query.tolist()],
@@ -46,3 +57,4 @@ class ChromaVectorStore():
         )
 
         return results
+    
