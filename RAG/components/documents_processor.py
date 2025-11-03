@@ -1,5 +1,10 @@
 from langchain_community.document_loaders import DirectoryLoader, UnstructuredMarkdownLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+<<<<<<< HEAD:components/documents_processor.py
+=======
+from pathlib import Path
+from RAG.logging_config import logger
+>>>>>>> d15280e (Creating new project structure):RAG/components/documents_processor.py
 
 
 class DocumentsProcessor():

@@ -5,7 +5,8 @@ from watchdog.events import FileCreatedEvent, FileModifiedEvent, FileDeletedEven
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from components.notes_handler import NotesHandler
+from RAG.components.notes_handler import NotesHandler
+
 
 @pytest.fixture
 def notes_handler():

@@ -6,6 +6,7 @@ from watchdog.events import FileSystemEventHandler
 import logging 
 
 import os
+<<<<<<< HEAD:components/notes_handler.py
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,6 +16,10 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 logging.basicConfig(filename='debug.log', level=logging.DEBUG, filemode='w',
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+=======
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from RAG.logging_config import logger
+>>>>>>> d15280e (Creating new project structure):RAG/components/notes_handler.py
 
 
 class NotesHandler(FileSystemEventHandler):

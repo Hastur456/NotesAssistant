@@ -2,8 +2,12 @@ import os
 import sys
 from dotenv import load_dotenv
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+<<<<<<< HEAD
 from components.documents_processor import DocumentsProcessor
 load_dotenv()
+=======
+from RAG.components.documents_processor import DocumentsProcessor, logger
+>>>>>>> d15280e (Creating new project structure)
 
 NOTES_PATH = os.getenv("NOTES_PATH")
 
