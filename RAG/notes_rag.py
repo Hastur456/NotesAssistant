@@ -1,5 +1,3 @@
-<<<<<<< HEAD:notes_rag.py
-=======
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -86,5 +84,4 @@ if __name__ == "__main__":
         print(f"\n{i}. {result[:200]}...")
     
     assistant.start_monitoring()
-    
->>>>>>> d15280e (Creating new project structure):RAG/notes_rag.py
+

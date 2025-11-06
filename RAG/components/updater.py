@@ -1,17 +1,14 @@
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from components.documents_processor import DocumentsProcessor
-from components.vectorstore import ChromaVectorStore
-from components.embedding_model import EmbeddingModel
-<<<<<<< HEAD:components/updater.py
-=======
+from RAG.components.documents_processor import DocumentsProcessor
+from RAG.components.vectorstorage import ChromaVectorStorage
+from RAG.components.embedding_model import EmbeddingModel
 from RAG.logging_config import logger
->>>>>>> d15280e (Creating new project structure):RAG/components/updater.py
 
 
 class IncrementalHandler():
-    def __init__(self, vectorstore: ChromaVectorStore, embedding_model: EmbeddingModel, processor: DocumentsProcessor):
+    def __init__(self, vectorstore: ChromaVectorStorage, embedding_model: EmbeddingModel, processor: DocumentsProcessor):
         self.vecotorstore = vectorstore
         self.embedding_model = embedding_model
         self.processor = processor

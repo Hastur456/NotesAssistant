@@ -3,11 +3,12 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Optional, Dict, Any
 from datetime import datetime
+import logging
 
 
 @dataclass
 class LLMConfig:
-    model_name: str
+    model_name: str = "sonar"
     temperature: float = 0.7
     max_tokens: int = 2048
     timeout: int = 30
@@ -25,16 +26,20 @@ class LLMResponse:
 
 
 class BaseLLM(ABC):
-    def __init__(self, config: LLMConfig, logger):
+    def __init__(self, config: LLMConfig):
         self.config = config
-        self.logger = logger
+        self._set_default_logger()
 
     @abstractmethod
-    def generate(self, prompt: str, **kwards):
+    def generate(self, prompt: str, **kwards) -> LLMResponse:
         pass
 
-    def predict(self, text: str):
-        response = self.generate(text)
+    @abstractmethod
+    def check_connection(self) -> bool:
+        pass
+
+    def predict(self, text: str, **kwards):
+        response = self.generate(text, **kwards)
         return response.content
     
     def generate_with_context(self, query: str, context: str, template: str = None):
@@ -44,10 +49,27 @@ class BaseLLM(ABC):
         prompt = template.format(query=query, context=context)
         return self.generate(prompt)
     
-    #Вспомогательные методы
     def _get_default_context_template(self) -> str:
         return """Используя следующий контекст, ответь на вопрос. 
         Контекст: {context}
         Вопрос: {query} 
         Ответ: """
+    
+    def _set_default_logger(self):
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.INFO)
+        console_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        console_handler.setFormatter(console_formatter)
+
+        # Конфигурация логирования в файл
+        file_handler = logging.FileHandler('LLM_debug.log', mode='w', encoding="utf-8")
+        file_handler.setLevel(logging.DEBUG)
+        file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        file_handler.setFormatter(file_formatter)
+
+        # Получение логгера
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        self.logger.addHandler(console_handler)
+        self.logger.addHandler(file_handler)
     

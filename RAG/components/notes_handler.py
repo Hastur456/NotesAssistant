@@ -6,20 +6,10 @@ from watchdog.events import FileSystemEventHandler
 import logging 
 
 import os
-<<<<<<< HEAD:components/notes_handler.py
-from dotenv import load_dotenv
+import sys
 
-load_dotenv()
-path_to_notes = os.getenv("NOTES_PATH")
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-logging.basicConfig(filename='debug.log', level=logging.DEBUG, filemode='w',
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-=======
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from RAG.logging_config import logger
->>>>>>> d15280e (Creating new project structure):RAG/components/notes_handler.py
 
 
 class NotesHandler(FileSystemEventHandler):
@@ -54,3 +44,15 @@ def update_database_callback(filepath, event_type):
     print(f"  → Обновление БД: {filepath} ({event_type})")
 
 
+def start_monitoring(notes_dir, update_callback):
+    event_handler = NotesHandler(update_callback)
+    observer = Observer()
+    observer.schedule(event_handler, notes_dir, recursive=True)
+    observer.start()
+    
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.stop()
+    observer.join()
