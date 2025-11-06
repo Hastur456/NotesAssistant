@@ -71,12 +71,16 @@ class RAGAssistant():
 
 
 if __name__ == "__main__":
+    persist_directory = "./vectorstorage"
+
     assistant = RAGAssistant(
         "C:/WebApps/NoteAssistant/tests/testnotes",
-        persist_dir="./vectorstorage"
+        persist_dir=persist_directory
     )
-    
-    assistant.initial_indexing()
+
+    # if not os.path.isdir(persist_directory):
+    #     logger.debug(f"Директория {persist_directory}")
+    # assistant.initial_indexing()
     
     results = assistant.query("Как настроить Python?", k=3)
     print("\nРезультаты поиска:")
@@ -84,4 +88,3 @@ if __name__ == "__main__":
         print(f"\n{i}. {result[:200]}...")
     
     assistant.start_monitoring()
-

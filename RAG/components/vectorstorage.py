@@ -9,7 +9,7 @@ from RAG.logging_config import logger
 
 
 class ChromaVectorStorage:
-    def __init__(self, persist_directory="./chroma_db"):
+    def __init__(self, persist_directory="./vectorstorage"):
         self.persist_directory = Path(persist_directory)
         
         self.persist_directory.mkdir(parents=True, exist_ok=True)

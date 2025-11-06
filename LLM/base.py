@@ -29,6 +29,8 @@ class BaseLLM(ABC):
     def __init__(self, config: LLMConfig):
         self.config = config
         self._set_default_logger()
+        self._setup_client()
+        self.check_connection()
 
     @abstractmethod
     def generate(self, prompt: str, **kwards) -> LLMResponse:
@@ -36,6 +38,10 @@ class BaseLLM(ABC):
 
     @abstractmethod
     def check_connection(self) -> bool:
+        pass
+
+    @abstractmethod
+    def _setup_client(self):
         pass
 
     def predict(self, text: str, **kwards):

@@ -8,21 +8,21 @@ from RAG.logging_config import logger
 
 
 class IncrementalHandler():
-    def __init__(self, vectorstore: ChromaVectorStorage, embedding_model: EmbeddingModel, processor: DocumentsProcessor):
-        self.vecotorstore = vectorstore
+    def __init__(self, vectorstorage: ChromaVectorStorage, embedding_model: EmbeddingModel, processor: DocumentsProcessor):
+        self.vectorstorage = vectorstorage
         self.embedding_model = embedding_model
         self.processor = processor
 
     def update_handler(self, filepath, event_type):
         if event_type == "delete":
-            self.vecotorstore.delete_by_source(filepath)
+            self.vectorstorage.delete_by_source(filepath)
 
         elif event_type in ["create", "modifed"]:
-            self.vecotorstore.delete_by_source(filepath)
+            self.vectorstorage.delete_by_source(filepath)
 
             chunks = self.processor.process_documents(filepath)
 
             texts = [chunk.page_content for chunk in chunks]
             embeddings = self.embedding_model.embed_documents(texts)
 
-            self.vecotorstore.add_documents(chunks, embeddings)
+            self.vectorstorage.add_documents(chunks, embeddings)

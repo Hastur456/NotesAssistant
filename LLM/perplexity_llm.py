@@ -16,9 +16,6 @@ class PerplexityAiLLM(BaseLLM):
     def __init__(self, config: LLMConfig):
         super().__init__(config)
 
-        self._setup_client()
-        self.check_connection()
-
     def generate(self, prompt, **kwards):
         try:
             self.logger.info("Отправка запроса к API Perplexity")
@@ -79,7 +76,3 @@ class PerplexityAiLLM(BaseLLM):
             api_key=self.api_key,
             base_url="https://api.perplexity.ai"
         )
-
-
-test_config = LLMConfig()
-model = PerplexityAiLLM(test_config)
