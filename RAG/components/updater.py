@@ -19,7 +19,7 @@ class IncrementalHandler():
 
         elif event_type in ["created", "modified"]:
             self.vectorstorage.delete_by_source(filepath)
-            chunks = self.processor.process_documents(filepath)
+            chunks = self.processor.document_processor(filepath)
 
             if not chunks:
                 logger.warning(f"Файл не обработан: {filepath}")

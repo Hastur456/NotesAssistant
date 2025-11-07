@@ -32,7 +32,7 @@ class RAGAssistant():
         logger.info(f"Начало индексации директории...")
 
         try:
-            chunks = self.documents_processor.process_documents(self.notes_dir)
+            chunks = self.documents_processor.documents_processor(self.notes_dir)
             texts = [chunk.page_content for chunk in chunks]
 
             embeddings = self.embedding_model.embed_documents(texts)
