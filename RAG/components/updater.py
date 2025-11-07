@@ -17,10 +17,13 @@ class IncrementalHandler():
         if event_type == "delete":
             self.vectorstorage.delete_by_source(filepath)
 
-        elif event_type in ["create", "modifed"]:
+        elif event_type in ["created", "modified"]:
             self.vectorstorage.delete_by_source(filepath)
-
             chunks = self.processor.process_documents(filepath)
+
+            if not chunks:
+                logger.warning(f"Файл не обработан: {filepath}")
+                return
 
             texts = [chunk.page_content for chunk in chunks]
             embeddings = self.embedding_model.embed_documents(texts)

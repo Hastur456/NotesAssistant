@@ -74,7 +74,7 @@ if __name__ == "__main__":
     persist_directory = "./vectorstorage"
 
     assistant = RAGAssistant(
-        "C:/WebApps/NoteAssistant/tests/testnotes",
+        path_to_notes,
         persist_dir=persist_directory
     )
 
@@ -82,7 +82,7 @@ if __name__ == "__main__":
     #     logger.debug(f"Директория {persist_directory}")
     # assistant.initial_indexing()
     
-    results = assistant.query("Как настроить Python?", k=3)
+    results = assistant.query("Решение задач с leetcode?", k=3)
     print("\nРезультаты поиска:")
     for i, result in enumerate(results['documents'][0], 1):
         print(f"\n{i}. {result[:200]}...")

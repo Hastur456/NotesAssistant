@@ -4,11 +4,10 @@ from dotenv import load_dotenv
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from RAG.components.documents_processor import DocumentsProcessor, logger
 
-NOTES_PATH = os.getenv("NOTES_PATH")
-
+test_notes = "C:/WebApps/NoteAssistant/tests/testnotes"
 processor = DocumentsProcessor()
 
-chunks = processor.process_documents(NOTES_PATH)
+chunks = processor.process_documents(test_notes)
 
 # 1. Базовый анализ chunks
 print("=== BASIC CHUNKS ANALYSIS ===")

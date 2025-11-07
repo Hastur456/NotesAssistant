@@ -49,10 +49,10 @@ def start_monitoring(notes_dir, update_callback):
     observer = Observer()
     observer.schedule(event_handler, notes_dir, recursive=True)
     observer.start()
-    
     try:
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
         observer.stop()
+        logger.info("Мониторинг за директорией {} заверешен.".format(notes_dir))
     observer.join()
