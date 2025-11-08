@@ -7,6 +7,25 @@ class NotesManager():
         self.notes_dir = Path(notes_directory)
         self.notes_dir.mkdir(parents=True, exist_ok=True)
 
+    def read_note(self, filename: str):
+        filepath = self.notes_dir / filename
+
+        if not filepath.exists():
+            return {
+                "status": "error",
+                "message": f"Заметка {filepath} не найдена."
+            }
+
+        with open(filepath, mode="r", encoding="utf-8") as f:
+            content = f.read()
+
+        return {
+            "status": "success",
+            "filename": filename,
+            "content": content,
+            "metadata": self.metadata.get(filename, {})
+        }
+
     def create_note(self, title, content):
         filename = title + ".md"
         filepath = self.notes_dir / filename
@@ -42,6 +61,12 @@ class NotesManager():
             f.write(f"# {title}\n\n")
             f.write(content)
 
+        return {
+            "status": "success",
+            "filename": filename,
+            "message": f"Заметка '{title}' успешно обновлена"
+        }
+
     def delete_note(self, filename):
         filepath = self.notes_dir / filename
 
@@ -58,7 +83,7 @@ class NotesManager():
             "message": f"Заметка '{filename}' удалена"
         }
 
-    def dir_structure(self, root_path: str|None = None):
+    def get_dir_structure(self, root_path: str|None = None):
         root_path = root_path if root_path else str(self.notes_dir) 
         tree = {'name': os.path.basename(root_path), 'path': os.path.abspath(root_path), 'files': [], 'directories': []}
         dir_map = {os.path.abspath(root_path): tree}
@@ -72,7 +97,11 @@ class NotesManager():
                 dir_map[abs_dir] = new_node
             current_node['files'].extend(filenames)
 
-        return tree
+        return {
+            "status": "success",
+            "count": len(tree),
+            "tree": tree
+        }
 
     def print_tree(self, node, indent=0):
         print('  ' * indent + f"📁 {node['name']}")

@@ -96,7 +96,7 @@ def test_special_characters_in_title(manager):
 
 def test_dir_structure_returns_dict(manager):
     manager.create_note("test", "content")
-    structure = manager.dir_structure()
+    structure = manager.get_dir_structure()
     assert isinstance(structure, dict)
     assert "name" in structure
     assert "path" in structure
@@ -107,7 +107,7 @@ def test_dir_structure_returns_dict(manager):
 def test_dir_structure_contains_files(manager):
     manager.create_note("note1", "content1")
     manager.create_note("note2", "content2")
-    structure = manager.dir_structure()
+    structure = manager.get_dir_structure()
     assert len(structure["files"]) == 2
     assert "note1.md" in structure["files"]
     assert "note2.md" in structure["files"]
@@ -117,7 +117,7 @@ def test_dir_structure_with_subdirs(manager):
     manager.create_note("note", "content")
     subdir = manager.notes_dir / "subdir"
     subdir.mkdir()
-    structure = manager.dir_structure()
+    structure = manager.get_dir_structure()
     assert len(structure["directories"]) == 1
     assert structure["directories"][0]["name"] == "subdir"
 
@@ -125,7 +125,7 @@ def test_dir_structure_with_subdirs(manager):
 def test_print_tree_debug_output(manager, capsys):
     manager.create_note("note1", "content")
     manager.create_note("note2", "content")
-    structure = manager.dir_structure()
+    structure = manager.get_dir_structure()
     manager.print_tree(structure)
 
     captured = capsys.readouterr()
