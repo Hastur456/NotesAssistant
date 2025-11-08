@@ -67,13 +67,11 @@ class BaseLLM(ABC):
         console_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
         console_handler.setFormatter(console_formatter)
 
-        # Конфигурация логирования в файл
         file_handler = logging.FileHandler('LLM_debug.log', mode='w', encoding="utf-8")
         file_handler.setLevel(logging.DEBUG)
         file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         file_handler.setFormatter(file_formatter)
 
-        # Получение логгера
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
         self.logger.addHandler(console_handler)
