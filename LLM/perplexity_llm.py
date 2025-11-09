@@ -1,23 +1,49 @@
 import openai
-from openai import OpenAI
 from datetime import datetime
 from logging import Logger
 import os
 from dotenv import load_dotenv
+from dataclasses import dataclass
+from typing import Optional, List, Dict
 
-from base import (
-    BaseLLM,
-    LLMConfig,
-    LLMResponse
-)
+from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_core.messages import AIMessage, BaseMessage
+from langchain_core.outputs import ChatResult, ChatGeneration
+from openai import OpenAI
 
 
-class PerplexityAiLLM(BaseLLM):
-    def __init__(self, config: LLMConfig):
-        super().__init__(config)
+@dataclass
+class LLMConfig:
+    model_name: str = "sonar"
+    temperature: float = 0.7
+    max_tokens: int = 2048
+    timeout: int = 30
+    retry_attempts: int = 3
+    api_key: Optional[str] = None
 
-    def generate(self, prompt, **kwards):
+
+class PerplexityAiLLM(BaseChatModel):
+    def __init__(self, config: LLMConfig, **kwards):
+        super().__init__(**kwards)
+        self.config = config
+        self._setup_client()
+        self.check_connection()
+        
+    def _setup_client(self):
+        load_dotenv()
+        self.api_key = self.config.api_key or os.getenv("PERPLEXITY_API_KEY")
+
+        if self.api_key is None:
+            raise ValueError("API ключ отсутствует")
+        
+        self.client = OpenAI(
+            api_key=self.api_key,
+            base_url="https://api.perplexity.ai"
+        )
+
+    def _generate(self, message, stop=None, **kwards):
         try:
+            prompt = message[-1].content
             self.logger.info("Отправка запроса к API Perplexity")
 
             response = self.client.chat.completions.create(
@@ -28,13 +54,8 @@ class PerplexityAiLLM(BaseLLM):
                 ]
             )
 
-            return LLMResponse(
-                content=response.choices[0].message.content,
-                model=response.model,
-                tokens_used=response.usage.total_tokens,
-                timestamp=datetime.fromtimestamp(response.created),
-                metadata={k: v for k, v in response.to_dict().items() if k not in {"choices", "model", "usage", "created"}}
-            )
+            message = AIMessage(content=response.choices[0].message.content)
+            return ChatResult(generations=[ChatGeneration(message=message)])
         
         except openai.APIError as e:
             self.logger.error("Ошибка при подключении к API Perplexity: {}".format(e))
@@ -65,14 +86,6 @@ class PerplexityAiLLM(BaseLLM):
             self.logger.error("Ошибка при подключении к API Perplexity: {}".format(e))
             raise e
         
-    def _setup_client(self):
-        load_dotenv()
-        self.api_key = self.config.api_key or os.getenv("PERPLEXITY_API_KEY")
-
-        if self.api_key is None:
-            raise ConnectionError("Соединение с API отсутствует")
-        
-        self.client = OpenAI(
-            api_key=self.api_key,
-            base_url="https://api.perplexity.ai"
-        )
+    @property
+    def _llm_type(self):
+        return "perplexity"
