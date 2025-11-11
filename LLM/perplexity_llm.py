@@ -1,6 +1,6 @@
 import openai
 from datetime import datetime
-from logging import Logger
+import logging
 import os
 from dotenv import load_dotenv
 from dataclasses import dataclass
@@ -26,8 +26,9 @@ class PerplexityAiLLM(BaseChatModel):
     def __init__(self, config: LLMConfig, **kwards):
         super().__init__(**kwards)
         self.config = config
+        self._set_default_logger()
         self._setup_client()
-        self.check_connection()
+        self._check_connection()
         
     def _setup_client(self):
         load_dotenv()
@@ -41,7 +42,7 @@ class PerplexityAiLLM(BaseChatModel):
             base_url="https://api.perplexity.ai"
         )
 
-    def _generate(self, message, stop=None, **kwards):
+    def _generate(self, message, stop=None, **kwards) -> ChatResult:
         try:
             prompt = message[-1].content
             self.logger.info("Отправка запроса к API Perplexity")
@@ -65,7 +66,7 @@ class PerplexityAiLLM(BaseChatModel):
             self.logger.error(f"Ошибка при обработке запроса к API: {e}")
             raise e
         
-    def check_connection(self):
+    def _check_connection(self):
         try:
             response = self.client.chat.completions.create(
                 model="sonar",
@@ -87,5 +88,22 @@ class PerplexityAiLLM(BaseChatModel):
             raise e
         
     @property
-    def _llm_type(self):
+    def _llm_type(self) -> str:
         return "perplexity"
+
+
+    def _set_default_logger(self, log_path:str='LLM_debug.log'):
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.INFO)
+        console_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        console_handler.setFormatter(console_formatter)
+
+        file_handler = logging.FileHandler(log_path, mode='w', encoding="utf-8")
+        file_handler.setLevel(logging.DEBUG)
+        file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        file_handler.setFormatter(file_formatter)
+
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        self.logger.addHandler(console_handler)
+        self.logger.addHandler(file_handler)

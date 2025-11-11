@@ -12,6 +12,7 @@ class FileOperationTools:
     def __init__(self, notes_dir: str):
         self.notes_dir = notes_dir
         self.notes_manager = NotesManager(notes_directory=notes_dir)
+        self.rag_assistant = None
 
     def create_tools(self):
         @tool
@@ -39,12 +40,38 @@ class FileOperationTools:
             result = self.notes_manager.get_dir_structure(root_path)
             return json.dumps(result, ensure_ascii=False)
 
+        @tool
+        def search_notes(query: str, k: int = 5):
+            if self.rag_assistant is None:
+                return json.dumps({"error": "RAG система не инициализирована"}, ensure_ascii=False)
+
+            try:
+                results = self.rag_assistant.query(query, k=k)
+                documents = results.get('documents', [[]])[0]
+                formatted_results = []
+                for i, doc in enumerate(documents):
+                    formatted_results.append({
+                        "rank": i + 1,
+                        "content": doc
+                    })
+
+                return json.dumps({
+                    "status": "success",
+                    "query": query,
+                    "results_count": len(formatted_results),
+                    "results": formatted_results
+                }, ensure_ascii=False)
+            
+            except Exception as e:
+                return json.dumps({"status": "error", "message": str(e)}, ensure_ascii=False)
+
         tools = [
             read_note,
             create_note,
             edit_note,
             delete_note,
-            get_dir_structure, 
-        ] 
+            get_dir_structure,
+            search_notes,
+        ]
 
         return tools

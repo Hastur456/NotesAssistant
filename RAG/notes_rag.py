@@ -6,11 +6,11 @@ load_dotenv()
 path_to_notes = os.getenv("NOTES_PATH")
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from components.documents_processor import DocumentsProcessor
-from components.vectorstorage import ChromaVectorStorage
-from components.embedding_model import EmbeddingModel
-from components.notes_handler import start_monitoring
-from components.updater import IncrementalHandler
+from RAG.components.documents_processor import DocumentsProcessor
+from RAG.components.vectorstorage import ChromaVectorStorage
+from RAG.components.embedding_model import EmbeddingModel
+from RAG.components.notes_handler import start_monitoring
+from RAG.components.updater import IncrementalHandler
 from RAG.logging_config import logger
 
 

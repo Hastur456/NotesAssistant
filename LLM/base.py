@@ -5,6 +5,8 @@ from typing import Optional, Dict, Any
 from datetime import datetime
 import logging
 
+from langchain_core.language_models.chat_models import BaseChatModel
+
 
 @dataclass
 class LLMConfig:
@@ -25,19 +27,19 @@ class LLMResponse:
     metadata: Dict[str, Any]
 
 
-class BaseLLM(ABC):
+class BaseLLM(BaseChatModel, ABC):
     def __init__(self, config: LLMConfig):
         self.config = config
         self._set_default_logger()
         self._setup_client()
-        self.check_connection()
+        self._check_connection()
 
     @abstractmethod
-    def generate(self, prompt: str, **kwards) -> LLMResponse:
+    def _generate(self, prompt: str, **kwards) -> LLMResponse:
         pass
 
     @abstractmethod
-    def check_connection(self) -> bool:
+    def _check_connection(self) -> bool:
         pass
 
     @abstractmethod
@@ -45,7 +47,7 @@ class BaseLLM(ABC):
         pass
 
     def predict(self, text: str, **kwards):
-        response = self.generate(text, **kwards)
+        response = self._generate(text, **kwards)
         return response.content
     
     def generate_with_context(self, query: str, context: str, template: str = None):
@@ -53,7 +55,7 @@ class BaseLLM(ABC):
             template = self._get_default_context_template()
         
         prompt = template.format(query=query, context=context)
-        return self.generate(prompt)
+        return self._generate(prompt)
     
     def _get_default_context_template(self) -> str:
         return """Используя следующий контекст, ответь на вопрос. 
