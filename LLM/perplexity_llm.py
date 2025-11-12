@@ -3,29 +3,41 @@ from datetime import datetime
 import logging
 import os
 from dotenv import load_dotenv
-from dataclasses import dataclass
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Any
+
 
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import AIMessage, BaseMessage
 from langchain_core.outputs import ChatResult, ChatGeneration
+from pydantic import BaseModel, Field, ConfigDict
 from openai import OpenAI
 
 
-@dataclass
-class LLMConfig:
+
+class LLMConfig(BaseModel):
     model_name: str = "sonar"
     temperature: float = 0.7
     max_tokens: int = 2048
     timeout: int = 30
     retry_attempts: int = 3
-    api_key: Optional[str] = None
+    api_key: str|None = None
+    
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
 
 
 class PerplexityAiLLM(BaseChatModel):
-    def __init__(self, config: LLMConfig, **kwards):
-        super().__init__(**kwards)
-        self.config = config
+    config: LLMConfig = Field(...)
+    client: Optional[OpenAI] = Field(default=None, exclude=True)
+    api_key: Optional[str] = Field(default=None)
+    logger: Optional[logging.Logger] = Field(default=None, exclude=True)
+    
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
+    def __init__(self, config: LLMConfig|None = config, **kwargs):
+        if config is None:
+            config = LLMConfig()
+        super().__init__(config=config, **kwargs)
         self._set_default_logger()
         self._setup_client()
         self._check_connection()
@@ -42,7 +54,8 @@ class PerplexityAiLLM(BaseChatModel):
             base_url="https://api.perplexity.ai"
         )
 
-    def _generate(self, message, stop=None, **kwards) -> ChatResult:
+
+    def _generate(self, message, stop=None, **kwargs) -> ChatResult:
         try:
             prompt = message[-1].content
             self.logger.info("Отправка запроса к API Perplexity")
@@ -91,8 +104,15 @@ class PerplexityAiLLM(BaseChatModel):
     def _llm_type(self) -> str:
         return "perplexity"
 
+    def bind_tools(self, tools: List[Any], **kwargs: Any) -> "PerplexityAiLLM":
+        """
+        Привязка инструментов к модели.
+        Perplexity API не поддерживает tool_choice/function_calling напрямую,
+        поэтому мы просто возвращаем self без изменений.
+        """
+        return self
 
-    def _set_default_logger(self, log_path:str='LLM_debug.log'):
+    def _set_default_logger(self, log_path: str = 'LLM_debug.log'):
         console_handler = logging.StreamHandler()
         console_handler.setLevel(logging.INFO)
         console_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')

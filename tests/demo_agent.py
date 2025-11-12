@@ -3,6 +3,7 @@
 import asyncio
 from pathlib import Path
 from langchain.messages import HumanMessage
+import traceback
 
 # Импортируем агента
 import os
@@ -46,8 +47,8 @@ def demo_basic_operations():
         try:
             response = agent.answer(query)
             print(f"Ответ: {response}\n")
-        except Exception as e:
-            print(f"❌ Ошибка: {str(e)}\n")
+        except Exception:
+            print(f"❌ Ошибка: {traceback.format_exc()}\n")
     
     
     # Сброс памяти

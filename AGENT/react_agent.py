@@ -9,21 +9,21 @@ from langchain_core.prompts import PromptTemplate
 from langchain.messages import HumanMessage, AIMessage, SystemMessage
 
 from langgraph.checkpoint.memory import InMemorySaver
+from uuid import uuid4
 
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from AGENT.tools import FileOperationTools
-from LLM.perplexity_llm import PerplexityAiLLM
-from LLM.base import LLMConfig
+from LLM.perplexity_llm import PerplexityAiLLM, LLMConfig
 from RAG.notes_rag import RAGAssistant
 
 
 class ReActAgent:
     def __init__(self, notes_dir: str):
         self.notes_dir = notes_dir
-        self.config = LLMConfig()
-        self.llm = PerplexityAiLLM(self.config)
+        self.llm_config = LLMConfig()
+        self.llm = PerplexityAiLLM(config=self.llm_config)
         self.rag_assistant = RAGAssistant(
             notes_dir=notes_dir, 
             persist_dir="./vectorstorage"
@@ -33,6 +33,8 @@ class ReActAgent:
         self.tools.rag_assistant = self.rag_assistant 
         
         self.checkpointer = InMemorySaver()
+
+        self.thread_id = str(uuid4())
 
         self.agent = self._create_agent()
 
@@ -99,7 +101,7 @@ class ReActAgent:
 
         agent = create_agent(
             model=self.llm,
-            tools=self.tools,
+            tools=self.tools.create_tools(),
             system_prompt=prompt,
             middleware=middlewares,
             checkpointer=self.checkpointer
@@ -108,9 +110,19 @@ class ReActAgent:
         return agent
 
     def answer(self, query: str):
-        response = self.agent.invoke(HumanMessage(content=query))
+        response = self.agent.invoke(
+            HumanMessage(content=query),
+            config={
+                "configurable": {
+                    "thread_id": self.thread_id,
+                    "checkpoint_ns": "notes",  # использовать только такие имена!
+                    "checkpoint_id": self.thread_id        # можно добавить, если хотите отличать сессии
+                }
+            }
+        )
 
         return response.content
     
     def reset_memory(self):
+        self.thread_id = str(uuid4())
         self.agent = self._create_agent()
