@@ -30,10 +30,10 @@ def demo_basic_operations():
     # Демо операции
     demo_queries = [
         "Создай заметку с названием 'Python Tips' и содержимым: 'List comprehension - мощный инструмент'",
-        "Найди все заметки содержащие слово 'Python'",
-        "Прочитай заметку 'Python Tips'",
-        "Обнови заметку 'Python Tips' добавив: 'Dictionary comprehension тоже полезен'",
-        "Список всех заметок"
+        # "Найди все заметки содержащие слово 'Python'",
+        # "Прочитай заметку 'Python Tips'",
+        # "Обнови заметку 'Python Tips' добавив: 'Dictionary comprehension тоже полезен'",
+        # "Список всех заметок"
     ]
     
     print("=" * 60)

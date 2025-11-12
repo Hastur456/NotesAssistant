@@ -31,20 +31,26 @@ def print_structure(data, indent=0):
 
 
 load_dotenv()
-API_KEY = os.getenv("PERPLEXITY_API_KEY")
+# API_KEY = os.getenv("PERPLEXITY_API_KEY")
 
 
-client = OpenAI(
-    api_key=API_KEY,
-    base_url="https://api.perplexity.ai"
-)
+# client = OpenAI(
+#     api_key=API_KEY,
+#     base_url="https://api.perplexity.ai"
+# )
 
-response = client.chat.completions.create(
-    model="sonar",
-    messages=[
-        {"role": "system", "content": "Будь точным и кратким."},
-        {"role": "user", "content": "Сколько звёзд в нашей галактике?"}
-    ]
-)
+# response = client.chat.completions.create(
+#     model="sonar",
+#     messages=[
+#         {"role": "system", "content": "Будь точным и кратким."},
+#         {"role": "user", "content": "Сколько звёзд в нашей галактике?"}
+#     ]
+# )
 
-pprint(response.choices[0])
+# pprint(response.choices[0])
+
+import google.generativeai as genai
+genai.configure(api_key="AIzaSyDNAcRtS_CTcTXaMe4zpto8NF6sEr8l77s")
+model = genai.GenerativeModel("gemini-2.5-flash")
+response = model.generate_content("Explain how AI works in a few words")
+print(response.text)

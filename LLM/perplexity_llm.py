@@ -20,7 +20,7 @@ class LLMConfig(BaseModel):
     max_tokens: int = 2048
     timeout: int = 30
     retry_attempts: int = 3
-    api_key: str|None = None
+    api_key: Optional[str] = None
     
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -34,9 +34,7 @@ class PerplexityAiLLM(BaseChatModel):
     
     model_config = ConfigDict(arbitrary_types_allowed=True)
     
-    def __init__(self, config: LLMConfig|None = config, **kwargs):
-        if config is None:
-            config = LLMConfig()
+    def __init__(self, config: LLMConfig, **kwargs):
         super().__init__(config=config, **kwargs)
         self._set_default_logger()
         self._setup_client()

@@ -102,7 +102,7 @@ class ReActAgent:
         agent = create_agent(
             model=self.llm,
             tools=self.tools.create_tools(),
-            system_prompt=prompt,
+            system_prompt=prompt.template,
             middleware=middlewares,
             checkpointer=self.checkpointer
         )
@@ -115,13 +115,13 @@ class ReActAgent:
             config={
                 "configurable": {
                     "thread_id": self.thread_id,
-                    "checkpoint_ns": "notes",  # использовать только такие имена!
-                    "checkpoint_id": self.thread_id        # можно добавить, если хотите отличать сессии
+                    "checkpoint_ns": "notes",
+                    "checkpoint_id": self.thread_id
                 }
             }
         )
 
-        return response.content
+        return response['messages'][0].content
     
     def reset_memory(self):
         self.thread_id = str(uuid4())
