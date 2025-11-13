@@ -83,3 +83,4 @@ celerybeat-schedule # Celery
 .dmypy.json
 dmypy.json
 vectorstorage/
+vectorstorage_test/

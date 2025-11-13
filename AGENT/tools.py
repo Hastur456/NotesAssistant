@@ -77,7 +77,7 @@ class FileOperationTools:
             edit_note,
             delete_note,
             get_dir_structure,
-            search_notes,
+            # search_notes,
         ]
 
         return tools

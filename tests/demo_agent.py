@@ -24,6 +24,7 @@ def demo_basic_operations():
     Path(notes_dir).mkdir(exist_ok=True)
     
     agent = ReActAgent(notes_dir=notes_dir)
+    # agent.rag_assistant.initial_indexing()
     print("✓ Агент успешно инициализирован\n")
     
     

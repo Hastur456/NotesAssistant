@@ -20,16 +20,18 @@ from LLM.amvera_llm import amvera_llm
 
 
 class ReActAgent:
-    def __init__(self, notes_dir: str):
+    def __init__(self, notes_dir: str, persist_dir: str = "./vectorstorage_test"):
         self.notes_dir = notes_dir
         self.llm = amvera_llm
         self.rag_assistant = RAGAssistant(
             notes_dir=notes_dir, 
-            persist_dir="./vectorstorage"
+            persist_dir=persist_dir
         )
 
         self.tools = FileOperationTools(notes_dir=notes_dir)
         self.tools.rag_assistant = self.rag_assistant 
+        self.tools_functions = self.tools.create_tools()
+        self.llm_with_tools = self.llm.bind_tools(self.tools_functions)
         
         self.checkpointer = InMemorySaver()
 
@@ -39,39 +41,49 @@ class ReActAgent:
 
     def _create_agent(self):
         prompt = PromptTemplate(template="""
-            Вы - интеллектуальный помощник для управления личными заметками.
+            Вы - ассистент для управления текстовыми заметками.
+
+            ПРАВИЛА (следуйте ТОЧНО):
+            1. Анализируйте текущий запрос пользователя.
+            2. Определите, какое ОДНО действие требуется.
+            3. Выполните ЭТО действие и ТОЛЬКО его.
+            4. НИКОГДА не выполняйте другие действия.
+            5. ПРЕКРАТИТЕ после первого действия.
+
+            ДЕЙСТВИЯ И КОГДА ИХ ИСПОЛЬЗОВАТЬ:
+            - create_note: Когда пользователь просит "создать", "добавить", "написать" новую заметку.
+            Параметры: title (название), content (содержимое)
             
-            У вас есть полный набор инструментов для:
-            1. Поиска и чтения существующих заметок (search_notes, read_note, list_notes)
-            2. Создания новых заметок (create_note)
-            3. Редактирования существующих заметок (update_note)
-            4. Удаления заметок (delete_note)
+            - read_note: Когда пользователь просит "прочитать", "показать", "открыть" заметку по имени файла.
+            Параметр: filename (имя файла, например: "Python Tips.md")
             
-            ВАЖНЫЕ ПРАВИЛА:
-            - Перед изменением заметки всегда прочитайте её содержимое
-            - При создании заметок используйте четкую структуру Markdown
-            - Всегда подтверждайте успешное выполнение операций
-            - Если пользователь просит отредактировать заметку, сначала найдите нужный файл
+            - edit_note: Когда пользователь просит "отредактировать", "изменить", "обновить" существующую заметку.
+            Параметры: filename, content, title
             
-            Инструменты в вашем распоряжении:
-            {tools}
+            - delete_note: Когда пользователь просит "удалить", "стереть" заметку.
+            Параметр: filename
             
-            Используйте следующий формат:
-            
-            Question: входной вопрос
-            Thought: о чём вы думаете
-            Action: действие (одно из [{tool_names}])
-            Action Input: входные данные
-            Observation: результат
-            ... (повторяйте если нужно)
-            Thought: я знаю финальный ответ
-            Final Answer: финальный ответ
-            
-            История разговора:
-            {chat_history}
-            
+            - get_dir_structure: Когда пользователь просит "список", "все заметки", "структуру".
+            Параметр: root_path
+
+            ТЕКУЩИЙ ЗАПРОС: {input}
+
+            На основе этого запроса выберите ОДНО действие:
+            - Это запрос на СОЗДАНИЕ? → Используйте create_note
+            - Это запрос на ЧТЕНИЕ? → Используйте read_note
+            - Это запрос на РЕДАКТИРОВАНИЕ? → Используйте edit_note
+            - Это запрос на УДАЛЕНИЕ? → Используйте delete_note
+            - Это запрос на СПИСОК? → Используйте get_dir_structure
+
+            Формат ответа (строго):
+
             Question: {input}
-            {agent_scratchpad}
+            Thought: Какое действие нужно выполнить и почему?
+            Action: [ОДНО действие из списка выше]
+            Action Input: [параметры в JSON]
+            Observation: [результат выполнения]
+            Final Answer: [ответ пользователю на основе результата]
+
         """)
 
         middlewares = [
@@ -84,23 +96,12 @@ class ReActAgent:
                     r"\d{3,4}[\s.-]?\d{4}"
                 ),
                 strategy="block"
-            ),
-            SummarizationMiddleware(
-                model="claude-sonnet-4-5-20250929",
-                max_tokens_before_summary=500
-            ),
-            HumanInTheLoopMiddleware(
-                interrupt_on={
-                    "send_email": {
-                        "allowed_decisions": ["approve", "edit", "reject"]
-                    }
-                }
-            ),
+            )
         ]
 
         agent = create_agent(
-            model=self.llm,
-            tools=self.tools.create_tools(),
+            model=self.llm_with_tools,
+            tools=self.tools_functions,
             system_prompt=prompt.template,
             middleware=middlewares,
             checkpointer=self.checkpointer
@@ -120,7 +121,7 @@ class ReActAgent:
             }
         )
 
-        return response['messages'][0].content
+        return response
     
     def reset_memory(self):
         self.thread_id = str(uuid4())
