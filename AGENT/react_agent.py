@@ -15,15 +15,14 @@ import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from AGENT.tools import FileOperationTools
-from LLM.perplexity_llm import PerplexityAiLLM, LLMConfig
 from RAG.notes_rag import RAGAssistant
+from LLM.amvera_llm import amvera_llm
 
 
 class ReActAgent:
     def __init__(self, notes_dir: str):
         self.notes_dir = notes_dir
-        self.llm_config = LLMConfig()
-        self.llm = PerplexityAiLLM(config=self.llm_config)
+        self.llm = amvera_llm
         self.rag_assistant = RAGAssistant(
             notes_dir=notes_dir, 
             persist_dir="./vectorstorage"

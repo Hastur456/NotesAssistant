@@ -13,7 +13,6 @@ from pydantic import BaseModel, Field, ConfigDict
 from openai import OpenAI
 
 
-
 class LLMConfig(BaseModel):
     model_name: str = "sonar"
     temperature: float = 0.7
@@ -23,7 +22,6 @@ class LLMConfig(BaseModel):
     api_key: Optional[str] = None
     
     model_config = ConfigDict(arbitrary_types_allowed=True)
-
 
 
 class PerplexityAiLLM(BaseChatModel):
