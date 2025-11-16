@@ -8,7 +8,7 @@ import logging
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import BaseMessage
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class LLMConfig(BaseModel):
@@ -29,8 +29,15 @@ class LLMResponse:
     metadata: Dict[str, Any]
 
 
-class BaseLLM(BaseChatModel, ABC):
-    def __init__(self):
+class BaseLLM(ABC):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
+    llm_config: LLMConfig
+    def __init__(self, llm_config: LLMConfig, **kwargs):
+        super().__init__(llm_config=llm_config, **kwargs)
+        self.llm_config = llm_config
+        self.logger: logging.Logger | None = None
+        self.client: Any | None = None
         self._set_default_logger()
         self._setup_client()
         self._check_connection()

@@ -13,13 +13,12 @@ load_dotenv()
 
 
 class OpenRouterLLM(BaseLLM):
-    llm_config: LLMConfig = Field(...)
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    def __init__(self, config: LLMConfig):
-        self.llm_config = config
-        super().__init__()
+    def __init__(self, llm_config: LLMConfig, **kwargs):
+        super().__init__(llm_config=llm_config, **kwargs)
     
-    def _generate(self, messages: List[BaseMessage], stop=None, run_manager=None, **kwards):
+    def _generate(self, messages: List[BaseMessage], stop=None, run_manager=None, **kwargs):
         openai_messages = [
             {
                 "role": "system" if isinstance(m, SystemMessage) 
