@@ -2,8 +2,6 @@ from langchain.agents import create_agent
 from langchain_core.agents import AgentAction
 from langchain.agents.middleware import (
     PIIMiddleware,
-    SummarizationMiddleware,
-    HumanInTheLoopMiddleware
 )
 from langchain_core.prompts import PromptTemplate
 from langchain.messages import HumanMessage, AIMessage, SystemMessage
@@ -16,13 +14,13 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from AGENT.tools import FileOperationTools
 from RAG.notes_rag import RAGAssistant
-from LLM.amvera_llm import amvera_llm
+from LLM.openrouter_llm import OpenRouterLLM, openrouter_config
 
 
 class ReActAgent:
     def __init__(self, notes_dir: str, persist_dir: str = "./vectorstorage_test"):
         self.notes_dir = notes_dir
-        self.llm = amvera_llm
+        self.llm = OpenRouterLLM(openrouter_config)
         self.rag_assistant = RAGAssistant(
             notes_dir=notes_dir, 
             persist_dir=persist_dir
