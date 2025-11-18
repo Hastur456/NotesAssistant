@@ -14,13 +14,13 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from AGENT.tools import FileOperationTools
 from RAG.notes_rag import RAGAssistant
-from LLM.openrouter_llm import OpenRouterLLM, openrouter_config
+from LLM.openrouter_llm import OpenRouterAdapter, openrouter_config
 
 
 class ReActAgent:
     def __init__(self, notes_dir: str, persist_dir: str = "./vectorstorage_test"):
         self.notes_dir = notes_dir
-        self.llm = OpenRouterLLM(openrouter_config)
+        self.llm = OpenRouterAdapter(openrouter_config)
         self.rag_assistant = RAGAssistant(
             notes_dir=notes_dir, 
             persist_dir=persist_dir
@@ -29,7 +29,7 @@ class ReActAgent:
         self.tools = FileOperationTools(notes_dir=notes_dir)
         self.tools.rag_assistant = self.rag_assistant 
         self.tools_functions = self.tools.create_tools()
-        self.llm_with_tools = self.llm.bind_tools(self.tools_functions)
+        # self.llm_with_tools = self.llm.bind_tools(self.tools_functions)
         
         self.checkpointer = InMemorySaver()
 
@@ -98,7 +98,7 @@ class ReActAgent:
         ]
 
         agent = create_agent(
-            model=self.llm_with_tools,
+            model=self.llm,
             tools=self.tools_functions,
             system_prompt=prompt.template,
             middleware=middlewares,

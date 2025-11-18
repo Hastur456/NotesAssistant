@@ -30,14 +30,12 @@ class LLMResponse:
 
 
 class BaseLLM(ABC):
-    """Базовый класс для LLM - БЕЗ наследования от BaseChatModel"""
-    
     def __init__(self, llm_config: LLMConfig, **kwargs):
         self.llm_config = llm_config
-        self.logger: Optional[logging.Logger] = None
-        self.client: Optional[Any] = None
-        self.tools_list: Optional[List[BaseTool]] = None
-        self._tools_dicts: Optional[List[Dict[str, Any]]] = None
+        self.logger: logging.Logger | None = None
+        self.client: Any | None = None
+        self.tools_list: List[BaseTool] | None = None
+        self._tools_dicts: List[Dict[str, Any]] | None = None
         
         self._set_default_logger()
         self._setup_client()
@@ -47,8 +45,8 @@ class BaseLLM(ABC):
     def _call_with_tools(
         self, 
         messages: List[BaseMessage], 
-        stop: Optional[List[str]] = None,
-        tools: Optional[List[Dict[str, Any]]] = None,
+        stop: List[str] | None = None,
+        tools: List[Dict[str, Any]] | None = None,
         **kwargs
     ) -> BaseMessage:
         pass
@@ -67,23 +65,23 @@ class BaseLLM(ABC):
     def batch(self, messages_list: List[List[BaseMessage]], **kwargs) -> List[BaseMessage]:
         return [self.invoke(messages, **kwargs) for messages in messages_list]
 
-    def bind_tools(self, tools: List[BaseTool], **kwargs) -> "BaseLLM":
-        tools_dicts = []
-        for tool in tools:
-            tool_dict = {
-                "type": "function",
-                "function": {
-                    "name": tool.name,
-                    "description": tool.description,
-                    "parameters": tool.args or {"type": "object", "properties": {}}
-                }
-            }
-            tools_dicts.append(tool_dict)
+    # def bind_tools(self, tools: List[BaseTool], **kwargs) -> "BaseLLM":
+    #     tools_dicts = []
+    #     for tool in tools:
+    #         tool_dict = {
+    #             "type": "function",
+    #             "function": {
+    #                 "name": tool.name,
+    #                 "description": tool.description,
+    #                 "parameters": tool.args or {"type": "object", "properties": {}}
+    #             }
+    #         }
+    #         tools_dicts.append(tool_dict)
         
-        new_llm = self.__class__(llm_config=self.llm_config, **kwargs)
-        new_llm.tools_list = tools
-        new_llm._tools_dicts = tools_dicts
-        return new_llm
+    #     new_llm = self.__class__(llm_config=self.llm_config, **kwargs)
+    #     new_llm.tools_list = tools
+    #     new_llm._tools_dicts = tools_dicts
+    #     return new_llm
 
     def predict(self, text: str, **kwargs) -> str:
         from langchain_core.messages import HumanMessage
