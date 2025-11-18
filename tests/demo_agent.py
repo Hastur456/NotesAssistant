@@ -1,69 +1,68 @@
-# Простой тест драйв ReActAgent
+# demo_agent.py - ОБНОВЛЕН ДЛЯ create_agent
 
-import asyncio
-from pathlib import Path
-from langchain.messages import HumanMessage
-import traceback
-
-# Импортируем агента
-import os
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from AGENT.react_agent import ReActAgent
 
 
 def demo_basic_operations():
-    """Демонстрация базовых операций агента"""
+    """Demonstrate basic agent operations"""
     
-    # Инициализация
-    print("=" * 60)
-    print("ИНИЦИАЛИЗАЦИЯ АГЕНТА")
-    print("=" * 60)
+    print("="*80)
+    print("AGENT INITIALIZATION")
+    print("="*80)
     
     notes_dir = "./tests/testnotes"
-    Path(notes_dir).mkdir(exist_ok=True)
+    Path(notes_dir).mkdir(parents=True, exist_ok=True)
     
-    agent = ReActAgent(notes_dir=notes_dir)
-    # agent.rag_assistant.initial_indexing()
-    print("✓ Агент успешно инициализирован\n")
+    agent = ReActAgent(notes_dir=notes_dir, verbose=True)
+    print(f"✓ Agent initialized (Thread ID: {agent.thread_id[:8]})\n")
     
-    
-    # Демо операции
+    # Demo queries
     demo_queries = [
-        "Используя инструмент просмотра файловой директории, который я тебе дал, напиши структуру папки",
-        # "Создай заметку с названием 'Python Tips' и содержимым: 'List comprehension - мощный инструмент'",
-        # "Найди все заметки содержащие слово 'Python'",
-        # "Прочитай заметку 'Python Tips'",
-        # "Обнови заметку 'Python Tips' добавив: 'Dictionary comprehension тоже полезен'",
-        # "Список всех заметок"
+        "Покажи структуру папки",
+        "Создай заметку 'Test' с содержимым 'Hello World'",
+        "Все заметки",
     ]
     
-    print("=" * 60)
-    print("ВЫПОЛНЕНИЕ ОПЕРАЦИЙ")
-    print("=" * 60 + "\n")
+    print("="*80)
+    print("EXECUTING QUERIES")
+    print("="*80)
     
     for i, query in enumerate(demo_queries, 1):
-        print(f"[{i}] Запрос: {query}")
-        print("-" * 60)
+        print(f"\n[{i}] Query: {query}")
+        print("-"*80)
         
         try:
             response = agent.answer(query)
-            print(f"Ответ: {response}\n")
-        except Exception:
-            print(f"❌ Ошибка: {traceback.format_exc()}\n")
+            print(f"Response: {response}\n")
+        except Exception as e:
+            print(f"✗ Error: {e}\n")
     
+    # Show history
+    print("\n" + "="*80)
+    print("CONVERSATION HISTORY")
+    print("="*80)
     
-    # Сброс памяти
-    print("=" * 60)
-    print("СБРОС ПАМЯТИ")
-    print("=" * 60)
+    history = agent.get_conversation_history()
+    for msg in history:
+        role = msg['role'].upper()
+        content = msg['content'][:70]
+        print(f"{role}: {content}...\n")
+    
+    # Reset
+    print("="*80)
+    print("RESETTING MEMORY")
+    print("="*80)
     agent.reset_memory()
-    print("✓ Память агента сброшена\n")
+    print("✓ Memory cleared\n")
     
-    
-    print("=" * 60)
-    print("✅ ТЕСТ ДРАЙВ ЗАВЕРШЕН")
-    print("=" * 60)
+    print("="*80)
+    print("✅ DEMO COMPLETE")
+    print("="*80)
 
 
 if __name__ == "__main__":
