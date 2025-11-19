@@ -12,12 +12,12 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class LLMConfig(BaseModel):
-    model_name: str = "sonar"
-    temperature: float = 0.7
-    max_tokens: int = 2048
-    timeout: int = 30
-    retry_attempts: int = 3
-    api_key: Optional[str] = None
+    model_name: str = Field(..., description="Name of model")
+    temperature: float = Field(..., gt=0, description="Temperature (Greatest then 0)")
+    max_tokens: int = Field(..., description="Maximum number of generated tokens")
+    timeout: int = Field(..., description="Timeout of request")
+    retry_attempts: int = Field(..., description="Retry attemps")
+    api_key: str | None = Field(..., description="Your API key")
 
 
 @dataclass
@@ -64,24 +64,6 @@ class BaseLLM(ABC):
 
     def batch(self, messages_list: List[List[BaseMessage]], **kwargs) -> List[BaseMessage]:
         return [self.invoke(messages, **kwargs) for messages in messages_list]
-
-    # def bind_tools(self, tools: List[BaseTool], **kwargs) -> "BaseLLM":
-    #     tools_dicts = []
-    #     for tool in tools:
-    #         tool_dict = {
-    #             "type": "function",
-    #             "function": {
-    #                 "name": tool.name,
-    #                 "description": tool.description,
-    #                 "parameters": tool.args or {"type": "object", "properties": {}}
-    #             }
-    #         }
-    #         tools_dicts.append(tool_dict)
-        
-    #     new_llm = self.__class__(llm_config=self.llm_config, **kwargs)
-    #     new_llm.tools_list = tools
-    #     new_llm._tools_dicts = tools_dicts
-    #     return new_llm
 
     def predict(self, text: str, **kwargs) -> str:
         from langchain_core.messages import HumanMessage

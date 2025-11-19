@@ -104,8 +104,8 @@ class NotesManager():
         }
 
     def print_tree(self, node, indent=0):
-        print('  ' * indent + f"📁 {node['name']}")
+        print('  ' * indent + f"P-{node['name']}")
         for file in node['files']:
-            print('  ' * (indent + 1) + f"📄 {file}")
+            print('  ' * (indent + 1) + f"f-{file}")
         for directory in node['directories']:
             self.print_tree(directory, indent + 1)

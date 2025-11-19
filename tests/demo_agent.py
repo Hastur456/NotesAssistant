@@ -24,8 +24,8 @@ def demo_basic_operations():
     # Demo queries
     demo_queries = [
         "Покажи структуру папки",
-        "Создай заметку 'Test' с содержимым 'Hello World'",
-        "Все заметки",
+        # "Создай заметку 'Test' с содержимым 'Hello World'",
+        # "Все заметки",
     ]
     
     print("="*80)
