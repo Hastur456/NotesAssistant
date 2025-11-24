@@ -9,3 +9,6 @@ markdown>=3.5
 streamlit>=1.30.0
 python-dotenv>=1.0.0
 faiss-cpu==1.12.0
+streamlit==1.28.1
+streamlit-extras==0.3.5
+streamlit-authenticator==0.2.3

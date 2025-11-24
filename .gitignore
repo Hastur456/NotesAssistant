@@ -85,3 +85,4 @@ dmypy.json
 vectorstorage/
 vectorstorage_test/
 llm_apis_test/
+flatting_dir.py
