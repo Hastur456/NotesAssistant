@@ -20,7 +20,7 @@ class ReActAgent:
     def __init__(
         self,
         notes_dir: str,
-        persist_dir: str = "./vectorstorage_test",
+        persist_dir: str = "./vectorstorage",
         verbose: bool = True,
         max_iterations: int = 5
     ):

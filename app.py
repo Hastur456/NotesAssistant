@@ -14,7 +14,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 # Импорт ваших модулей
 try:
     from RAG.notes_rag import RAGAssistant
-    from LLM.perplexity_llm import PerplexityAiLLM, LLMConfig
+    from AGENT.react_agent import ReActAgent
     RAG_AVAILABLE = True
 except Exception as e:
     st.warning(f"⚠️ RAG модули недоступны: {e}")
@@ -83,14 +83,12 @@ if "rag_assistant" not in st.session_state and RAG_AVAILABLE:
 
 if "llm_assistant" not in st.session_state:
     try:
-        api_key = os.getenv("PERPLEXITY_API_KEY")
+        api_key = os.getenv("OPENROUTER_API")
+        notes_path = os.getenv("NOTES_PATH", "./notes")
         if api_key:
-            llm_config = LLMConfig(
-                api_key=api_key,
-                temperature=float(os.getenv("TEMPERATURE", "0.7")),
-                max_tokens=int(os.getenv("MAX_TOKENS", "2000"))
+            st.session_state.llm_assistant = ReActAgent(
+                notes_dir=notes_path
             )
-            st.session_state.llm_assistant = PerplexityAiLLM(llm_config)
         else:
             st.session_state.llm_assistant = None
     except Exception as e:
@@ -364,7 +362,7 @@ elif page == "🤖 AI Assistant":
                 if question:
                     with st.spinner("🤔 Думаю..."):
                         try:
-                            response = st.session_state.llm_assistant.predict(question)
+                            response = st.session_state.llm_assistant.answer(question)
                             st.success("✅ Ответ готов!")
                             st.markdown(f"""
                             ### Ответ:
@@ -401,7 +399,7 @@ elif page == "🤖 AI Assistant":
 
 Ответ:"""
                             
-                            response = st.session_state.llm_assistant.predict(full_prompt)
+                            response = st.session_state.llm_assistant.answer(full_prompt)
                             st.success("✅ Ответ готов!")
                             st.markdown(f"""
                             ### Ответ:
@@ -438,7 +436,7 @@ elif page == "🤖 AI Assistant":
                     
                     with st.spinner("🤔 Анализирую..."):
                         try:
-                            response = st.session_state.llm_assistant.predict(prompts[analysis_type])
+                            response = st.session_state.llm_assistant.answer(prompts[analysis_type])
                             st.success("✅ Анализ готов!")
                             st.markdown(response)
                         except Exception as e:
